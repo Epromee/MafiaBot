@@ -70,8 +70,8 @@ class PreStartMafiaView(View):
             try:
                 await player.user.send(embed=emb)
             except:
-                await inter.followup.send(f"{player} - не удалось отправить роль. Ваши действия будут перенаправлятся ведущему (пишите ему в лс, либо в общий чат с ним)")
                 player.is_redirect = True
+                await inter.followup.send(f"{player} - не удалось отправить роль. Ваши действия будут перенаправлятся ведущему (пишите ему в лс, либо в общий чат с ним)")
 
             leader_embed.description += f"- {player} -> {player.role}\n"
 

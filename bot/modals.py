@@ -3,6 +3,7 @@ from disnake.ui import Modal
 
 from disnake import ModalInteraction
 
+
 class ServerSettingsModal(Modal):
     def __init__(self, settings):
         self.settings = settings

@@ -73,7 +73,6 @@ class Events(commands.Cog):
             server = target.server
         except:
             print(target, allPlayers)
-            exit(400)
 
         if "mafia" != component_ids[1]:
             await inter.message.delete()
@@ -149,7 +148,10 @@ class Events(commands.Cog):
         server = player.server
         for mafia in server.mafia_interaction.mafia_players:
             if mafia.user != author:
-                await mafia.user.send(embed=embed)
+                if mafia.is_redirect:
+                    await server.leader.send(embed=embed)
+                else:
+                    await mafia.user.send(embed=embed)
 
 
 def setup(bot):

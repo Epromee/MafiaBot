@@ -83,7 +83,11 @@ class MafiaInteraction:
     async def send_mafia_players(self, message=None, embed=None, components=None):
         messages = []
         for mafia in self.mafia_players:
-            msg = await mafia.user.send(message, embed=embed, components=components)
+            if mafia.is_redirect:
+                msg = await self.server.leader.send(message, embed=embed, components=components)
+            else:
+                msg = await mafia.user.send(message, embed=embed, components=components)
+
             messages.append(msg)
 
         return messages

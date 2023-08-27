@@ -55,5 +55,5 @@ another_roles = {
         "image": "https://www.mafiasyndicate.ru/images/page/cards/card2_sheriff.png",
         "color": Color.brand_green(),
         "count": 1
-    },
+    }
 }
