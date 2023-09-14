@@ -3,6 +3,15 @@ from disnake.ui import Button
 from config import allPlayers, allServers
 
 
+def get_button_skip(role):
+    return Button(style=ButtonStyle.danger, label="Пропустить", custom_id=f"select-{role}-skip") 
+
+
+def remove_player_for_memory(server, player_id):
+    del server.players[player_id]
+    del allPlayers[player_id]
+
+
 def format_buttons_voiting(server, players=None):
     if not players:
         players = server.players.values()
@@ -47,7 +56,7 @@ def clear_server_and_players(guild_id: int):
 def get_str_players(guild_id):
     players_str = ""
     for player in allServers[guild_id].players.values():
-        players_str += "- " + player.user.mention + "\n"
+        players_str += f"- {player} \n"
 
     return players_str
 
@@ -75,7 +84,7 @@ def edit_embed_voiting(server, embed: Embed, players=None):
         if vot_info_target:
             for author in vot_info_target:
                 if author:
-                    info += f"- {author.user.mention}\n"
+                    info += f"- {author}\n"
 
         embed.add_field(name=player.user.global_name if player.user.global_name else player.user.name, value=info)
 
@@ -88,17 +97,28 @@ def get_embed_voiting(server):
     return embed
 
 
-async def voiting_proccess_get_result(server, embed):
+def check_werewolf(server, player):
+    return player.role == "Оборотень" and server.werewolf_reincarnated
+
+
+def check_role_in_formated_roles(server, role):
+    return role in server.settings.formated_roles
+
+
+async def voiting_proccess_get_result(server, embed, is_mafia=False):
     players_expeled = server.get_result_voting()
     print(players_expeled)
-            
+    
     if len(players_expeled) > 1:
-        embed.add_field(name="Равные голоса", value=f"За {', '.join (player_expeled.__str__() for player_expeled in players_expeled)} проголосовало одинаковое количество человек. Объявляется переголосование! (Теперь голосовать можно только за них)")
-                
-        edit_embed_voiting(server, embed, players_expeled)
+        if is_mafia:
+            embed.add_field(name="Равные голоса", value=f"За {', '.join (player_expeled.__str__() for player_expeled in players_expeled)} проголосовало одинаковое количество человек. Итоговое решение остается за Крестным отцем")
+        else:
+            embed.add_field(name="Равные голоса", value=f"За {', '.join (player_expeled.__str__() for player_expeled in players_expeled)} проголосовало одинаковое количество человек. Объявляется переголосование! (Теперь голосовать можно только за них)")
+                    
+            edit_embed_voiting(server, embed, players_expeled)
 
-        server.clear_cache_day()
+            server.clear_cache_day()
 
-        return players_expeled, embed
+            return players_expeled, embed
 
     return players_expeled[0], embed

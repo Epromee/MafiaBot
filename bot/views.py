@@ -2,9 +2,10 @@ import disnake
 from disnake.ui import View, Button
 from disnake import MessageInteraction, Embed
 
-from config import allPlayers, allServers
+from config import allPlayers, allServers, icon_urls, icons_peaceful, icons_mafia
+from random import choice
 
-from bot.classes import Player
+from bot.classes import Player, ActiveRole
 from bot.modals import ServerSettingsModal
 from bot.functions import get_embed_mafia
 
@@ -22,8 +23,8 @@ class PreStartMafiaView(View):
         if not server:
             await inter.message.delete()
             return await inter.response.send_message("Игра была остановлена")
-        elif inter.author == server.leader:
-            return await inter.response.send_message("Вы являетесь ведущим!", ephemeral=True)
+        # elif inter.author == server.leader:
+        #     return await inter.response.send_message("Вы являетесь ведущим!", ephemeral=True)
         elif len(server.players) > server.settings.maximum_players_count:
             return await inter.response.send_message(f"Превышен лимит участников! (максимум {server.settings.maximum_players_count})", ephemeral=True)
         
@@ -61,11 +62,22 @@ class PreStartMafiaView(View):
         for player in server.players.values():
             player.role = settings.formated_roles[count]
             role = settings.roles[player.role]
-            if player.role == "Мафия":
+
+            if player.role in ["Мафия", "Крестный отец"]:
                 server.mafia_interaction.mafia_players.append(player)
+            
+            if player.role not in ["Мирный житель", "Бессмертный", "Комиссар", "Мафия"]:
+                server.server_interaction.players_role[player.role] = ActiveRole(server, player, role["messages"])
 
             emb = Embed(title=player.role, description=role["description"], color=role["color"])
-            emb.set_image(role["image"])
+                
+            if player.role == "Мафия":
+                emb.set_image(icon_urls[1] + "mafia/" + choice(icons_mafia))
+            elif player.role == "Мирный житель":
+                print(icon_urls[1] + choice(icons_peaceful))
+                emb.set_image(icon_urls[1] + "peaceful/" + choice(icons_peaceful))
+            else:
+                emb.set_image(icon_urls[1] + role["image"])
 
             try:
                 await player.user.send(embed=emb)
@@ -78,6 +90,7 @@ class PreStartMafiaView(View):
             count += 1
 
         await inter.author.send(embed=leader_embed)
+        await server.mafia_interaction.send_roles()
 
         server.status = 1
 

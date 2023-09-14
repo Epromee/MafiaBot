@@ -1,7 +1,7 @@
 import disnake
 from disnake.ui import Modal
 
-from disnake import ModalInteraction
+from disnake import ModalInteraction, File
 
 
 class ServerSettingsModal(Modal):
@@ -10,13 +10,13 @@ class ServerSettingsModal(Modal):
 
         components = [
             disnake.ui.TextInput(
-                label="Максимальное число игроков (границы 1-20)",
+                label="Максимальное число игроков (границы 3-20)",
                 custom_id="maximum_players_count",
                 max_length=2,
                 placeholder=str(self.settings.maximum_players_count)
             ),
             disnake.ui.TextInput(
-                label="Минимальное число игроков (границы 1-20)",
+                label="Минимальное число игроков (границы 3-20)",
                 custom_id="minimum_players_count",
                 max_length=2,
                 placeholder=str(self.settings.minimum_players_count)
