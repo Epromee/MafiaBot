@@ -3,6 +3,20 @@ from disnake.ui import Button
 from config import allPlayers, allServers
 
 
+def get_game_emb(number):
+    try:
+        game = allServers.keys()[number]
+    except:
+        return None
+    server = allServers.get(game)
+
+    emb = Embed(title=f"Игра №{number}")
+    emb.add_field("Кол-во игроков:", len(server.players))
+    emb.add_field("Роли:", ", ".join(server.settings.roles.keys()))
+
+    return emb
+
+
 def get_button_skip(role):
     return Button(style=ButtonStyle.danger, label="Пропустить", custom_id=f"select-{role}-skip") 
 

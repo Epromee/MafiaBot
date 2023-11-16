@@ -1,5 +1,10 @@
 from disnake import Color
 from os import listdir
+from datetime import datetime
+
+
+owner_id = 1114194456342695957
+start_time = datetime.now()
 
 
 icon_urls = [

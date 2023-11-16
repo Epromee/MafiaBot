@@ -1,3 +1,4 @@
+from typing import Any, Coroutine
 import disnake
 from disnake.ui import View, Button
 from disnake import MessageInteraction, Embed
@@ -7,7 +8,7 @@ from random import choice
 
 from bot.classes import Player, ActiveRole
 from bot.modals import ServerSettingsModal
-from bot.functions import get_embed_mafia
+from bot.functions import get_embed_mafia, get_game_emb
 
 
 class PreStartMafiaView(View):
@@ -104,3 +105,38 @@ class PreStartMafiaView(View):
             return await inter.response.send_message("Настраивать игру может только ведущий", ephemeral=True)
         
         return await inter.response.send_modal(ServerSettingsModal(server.settings))
+    
+
+class GameView(View):
+    def __init__(self, num):
+        super().__init__(timeout=None)
+        self.num = num
+
+    @disnake.ui.button(label="Далее", style=disnake.ButtonStyle.danger)
+    async def get_games(self, button: disnake.ui.Button, inter: MessageInteraction):
+        emb = get_game_emb(self.num)
+        if emb:
+            return await inter.response.edit_message(view=GameView(self.num+1), embed=emb)
+        
+        return await inter.response.send_message("Игра не найдена")
+    
+    @disnake.ui.button(label="Назад", style=disnake.ButtonStyle.danger)
+    async def get_games(self, button: disnake.ui.Button, inter: MessageInteraction):
+        emb = get_game_emb(self.num-1)
+        if emb:
+            return await inter.response.edit_message(view=GameView(self.num), embed=emb)
+
+        return await inter.response.send_message("Игра не найдена")
+
+class StateView(View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @disnake.ui.button(label="Игры", style=disnake.ButtonStyle.danger)
+    async def get_games(self, button: disnake.ui.Button, inter: MessageInteraction):
+        emb = get_game_emb(0)
+        if emb:
+            return await inter.response.send_message(view=GameView(1), embed=emb)
+
+        return await inter.response.send_message("Игра не найдена")
+    
