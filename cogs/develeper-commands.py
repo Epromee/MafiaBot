@@ -33,7 +33,16 @@ class DevelCommands(commands.Cog):
 
         for guild in self.bot.guilds:
             if guild.system_channel:
-                await guild.system_channel.send(embed=emb)
+                try:
+                    return await guild.system_channel.send(embed=emb)
+                except:
+                    pass
+
+            for channel in guild.channels:
+                try:
+                    return await channel.send(embed=emb)
+                except:
+                    pass
         
 
 def setup(bot):
